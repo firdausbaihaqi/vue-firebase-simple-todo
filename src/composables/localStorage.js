@@ -18,7 +18,7 @@ const getUserLogin = () => {
     }
 
     // console.log(data);
-    console.log("Status login : " + statusLogin);
+    // console.log("Status login : " + statusLogin);
     return { data, statusLogin };
 }
 

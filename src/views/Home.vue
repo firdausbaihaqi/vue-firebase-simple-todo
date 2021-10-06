@@ -1,12 +1,15 @@
 <template>
     <div>
-        <div class="mb-10">
+        <div class="mb-5">
             <p>is Logged in : {{ isLoggedIn }}</p>
             <br />
             <div v-if="isLoggedIn">
                 <div class="shadow-xl card image-full">
                     <figure>
-                        <img class="object-cover bg-cover max-h-60" src="https://picsum.photos/800" />
+                        <img
+                            class="object-cover bg-cover max-h-60"
+                            src="https://picsum.photos/800"
+                        />
                     </figure>
                     <div class="justify-end card-body">
                         <h2 class="card-title">
@@ -25,6 +28,10 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="mt-10">
+                    <Todos v-if="userData" :userData="userData" />
+                </div>
             </div>
 
             <div v-else-if="!isLoggedIn">
@@ -37,6 +44,7 @@
 </template>
 
 <script setup>
+import Todos from '../components/Todos.vue'
 import { ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 import {
@@ -44,6 +52,7 @@ import {
     signInWithPopup,
     GoogleAuthProvider,
     signOut,
+    onAuthStateChanged,
 } from 'firebase/auth'
 import {
     getUserLogin,
@@ -54,29 +63,32 @@ import {
 const provider = new GoogleAuthProvider()
 const isLoggedIn = ref(false)
 const userData = ref([])
+const auth = getAuth()
 
 onMounted(() => {
     const { data: userDataFromStorage, statusLogin } = getUserLogin()
 
     // console.log('status login yang diambil ketika mount : ' + statusLogin)
-    // console.log('data yang diambil ketika mount : ' + userDataFromStorage)
+    // console.log(
+    //     'data yang diambil ketika mount : ' + JSON.stringify(userDataFromStorage)
+    // )
 
     if (statusLogin == true) {
         isLoggedIn.value = true
         userData.value = userDataFromStorage
     }
+    auth.onAuthStateChanged((userData) => {
+        console.log('state login berubah')
+    })
 })
 
 const handleSignIn = () => {
-    const auth = getAuth()
     signInWithPopup(auth, provider)
         .then((result) => {
             const credential = GoogleAuthProvider.credentialFromResult(result)
             const token = credential.accessToken
             userData.value = result.user
             setUserLogin(result.user)
-
-            console.log(result.user)
 
             isLoggedIn.value = true
         })
@@ -108,5 +120,3 @@ const handleSignOut = () => {
         })
 }
 </script>
-
-<style></style>

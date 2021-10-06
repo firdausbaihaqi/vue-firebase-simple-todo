@@ -4,6 +4,8 @@ import App from './App.vue'
 import './main.css'
 
 import { initializeApp } from 'firebase/app';
+
+
 const firebaseConfig = {
     apiKey: '***REMOVED***',
     authDomain: '***REMOVED***',
@@ -14,6 +16,7 @@ const firebaseConfig = {
     measurementId: '***REMOVED***',
 }
 
-initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
+
 
 createApp(App).use(router).mount('#app')
