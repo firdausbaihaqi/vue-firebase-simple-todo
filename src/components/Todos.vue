@@ -11,7 +11,7 @@
                 <button class="btn btn-primary" @click="handleAdd">Add</button>
             </div>
         </div>
-        <div class="mt-5" v-if="todosData">
+        <div class="mt-5" v-if="todosData.length">
             <h2 class="text-xl font-semibold">Your Todos</h2>
             <div class="mt-2">
                 <ul>
@@ -25,12 +25,15 @@
 </template>
 
 <script setup>
+//
+// TODO : try to use onSnapshot to get realtime data so you don't have to get manually everytime a new data added
+//
 const props = defineProps({
     userData: Object,
 })
+
 import { ref } from '@vue/reactivity'
-import { onBeforeUpdate, onMounted } from '@vue/runtime-core'
-import { onAuthStateChanged, getAuth } from 'firebase/auth'
+import { onMounted } from '@vue/runtime-core'
 import {
     collection,
     addDoc,
@@ -41,36 +44,24 @@ import {
     where,
 } from 'firebase/firestore'
 
-let unsubscribe
-let auth = getAuth()
-let todosData = ref(null)
-let todoNew = ref('')
 const db = getFirestore()
+
+let todosData = ref([])
+let todoNew = ref('')
+
 const getData = async () => {
-    // const docs = await getDocs(collection(db, 'todos'))
+    // const docs = await getDocs(collection(db, 'todos')) //without query
     const docs = await getDocs(
         query(collection(db, 'todos'), where('uid', '==', props.userData.uid))
     )
 
-    let temp = []
-    console.log(docs)
+    todosData.value = []
     docs.forEach((doc) => {
-        temp.push(doc.data())
+        todosData.value.push(doc.data())
     })
-    todosData.value = temp
-
-    // getData()
-    // console.log(JSON.stringify(docs.name))
-    // auth.onAuthStateChanged((userData) => {
-    //     if (props.userData) {
-    //         console.log('onmounted data props belum ada isinya')
-    //         console.log('isi props : ' + JSON.stringify(props.userData))
-    //     }
 }
 
-onMounted(async () => {
-    getData()
-})
+getData()
 
 const handleAdd = async () => {
     try {
@@ -79,7 +70,7 @@ const handleAdd = async () => {
             name: todoNew.value,
             createdAt: serverTimestamp(),
         })
-        console.log('Document written with ID: ', docRef.id)
+        // console.log('Document written with ID: ', docRef.id)
         getData()
     } catch (e) {
         console.error('Error adding document: ', e)

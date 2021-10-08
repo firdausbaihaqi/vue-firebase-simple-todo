@@ -13,10 +13,10 @@
                     </figure>
                     <div class="justify-end card-body">
                         <h2 class="card-title">
-                            Hello : {{ userData.displayName }}
+                            Hello : {{ userLocal.displayName }}
                         </h2>
                         <p>
-                            {{ userData.email }}
+                            {{ userLocal.email }}
                         </p>
                         <div class="card-actions">
                             <button
@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="mt-10">
-                    <Todos v-if="userData" :userData="userData" />
+                    <Todos v-if="userLocal" :userData="userLocal" />
                 </div>
             </div>
 
@@ -61,24 +61,31 @@ import {
 } from '../composables/localStorage.js'
 
 const provider = new GoogleAuthProvider()
-const isLoggedIn = ref(false)
-const userData = ref([])
 const auth = getAuth()
+const isLoggedIn = ref(false)
+const userLocal = ref([])
+
+const { data: userDataFromStorage, statusLogin } = getUserLogin()
 
 onMounted(() => {
-    const { data: userDataFromStorage, statusLogin } = getUserLogin()
-
-    // console.log('status login yang diambil ketika mount : ' + statusLogin)
-    // console.log(
-    //     'data yang diambil ketika mount : ' + JSON.stringify(userDataFromStorage)
-    // )
-
     if (statusLogin == true) {
         isLoggedIn.value = true
-        userData.value = userDataFromStorage
+        userLocal.value = userDataFromStorage
     }
-    auth.onAuthStateChanged((userData) => {
-        console.log('state login berubah')
+
+    // auth state listener, anything happens with sign in or sign out will trigger these function
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            console.log('user login')
+            // console.log(JSON.stringify(user))
+            userLocal.value = user
+            setUserLogin(user)
+            isLoggedIn.value = true
+        } else {
+            console.log('user logout / belum login')
+            removeUserLogin()
+            isLoggedIn.value = false
+        }
     })
 })
 
@@ -87,10 +94,6 @@ const handleSignIn = () => {
         .then((result) => {
             const credential = GoogleAuthProvider.credentialFromResult(result)
             const token = credential.accessToken
-            userData.value = result.user
-            setUserLogin(result.user)
-
-            isLoggedIn.value = true
         })
         .catch((error) => {
             // Handle Errors here.
@@ -107,15 +110,11 @@ const handleSignIn = () => {
 }
 
 const handleSignOut = () => {
-    const auth = getAuth()
     signOut(auth)
         .then(() => {
             alert('see ya!!')
-            isLoggedIn.value = false
-            removeUserLogin()
         })
         .catch((error) => {
-            // An error happened.
             alert(error.message)
         })
 }
