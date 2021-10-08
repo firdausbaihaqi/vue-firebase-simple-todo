@@ -13,10 +13,20 @@
         </div>
         <div class="mt-5" v-if="todosData.length">
             <h2 class="text-xl font-semibold">Your Todos</h2>
-            <div class="mt-2">
+            <div class="mt-5">
                 <ul>
                     <li v-for="todo in todosData" :key="todo.id">
-                        - {{ todo.name }}
+                        <div
+                            class="px-5 py-2 mb-3 duration-200 border rounded-lg shadow hover:shadow-lg"
+                        >
+                            <button
+                                @click="handleDelete(todo.id)"
+                                class="btn btn-ghost"
+                            >
+                                ✖
+                            </button>
+                            {{ todo.name }}
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -33,33 +43,58 @@ const props = defineProps({
 })
 
 import { ref } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
 import {
-    collection,
-    addDoc,
     getFirestore,
+    collection,
+    doc,
+    addDoc,
     getDocs,
     serverTimestamp,
     query,
     where,
+    orderBy,
+    deleteDoc,
+    onSnapshot
 } from 'firebase/firestore'
 
-const db = getFirestore()
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
+const db = getFirestore()
+const auth = getAuth()
+
+let unsubcribe
 let todosData = ref([])
 let todoNew = ref('')
 
 const getData = async () => {
     // const docs = await getDocs(collection(db, 'todos')) //without query
     const docs = await getDocs(
-        query(collection(db, 'todos'), where('uid', '==', props.userData.uid))
+        query(
+            collection(db, 'todos'),
+            where('uid', '==', props.userData.uid),
+            orderBy('createdAt', 'asc')
+        )
     )
 
     todosData.value = []
     docs.forEach((doc) => {
-        todosData.value.push(doc.data())
+        // merge with document object with id
+        todosData.value.push({ ...doc.data(), id: doc.id })
     })
+
+    // console.log(todosData.value)
 }
+
+// auth.onAuthStateChanged(() => {
+//     unsubcribe = onSnapshot(
+//         collection(db, 'todos'),
+//         where('uid', '==', props.userData.uid),
+//         orderBy('createdAt', 'asc'),
+//         (doc) => {
+//             console.log('Current data: ', doc.data())
+//         }
+//     )
+// })
 
 getData()
 
@@ -74,6 +109,16 @@ const handleAdd = async () => {
         getData()
     } catch (e) {
         console.error('Error adding document: ', e)
+    }
+}
+
+const handleDelete = async (docId) => {
+    try {
+        const docRef = await deleteDoc(doc(db, 'todos', docId))
+        console.log('Document terhapus')
+        getData()
+    } catch (error) {
+        console.error('Error deleting document: ', error)
     }
 }
 </script>

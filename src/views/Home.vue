@@ -1,7 +1,6 @@
 <template>
     <div>
         <div class="mb-5">
-            <p>is Logged in : {{ isLoggedIn }}</p>
             <br />
             <div v-if="isLoggedIn">
                 <div class="shadow-xl card image-full">
@@ -29,7 +28,7 @@
                     </div>
                 </div>
 
-                <div class="mt-10">
+                <div class="my-10">
                     <Todos v-if="userLocal" :userData="userLocal" />
                 </div>
             </div>
