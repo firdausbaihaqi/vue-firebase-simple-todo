@@ -1,7 +1,7 @@
 <template>
     <div class="mb-2 shadow-lg navbar bg-neutral text-neutral-content">
         <div class="flex-1 px-2 mx-2">
-            <span class="text-lg font-bold"> Firebase learning </span>
+            <span class="text-lg font-bold"> Todo-App </span>
         </div>
         <div class="flex-none">
             <router-link :to="{ name: 'Home' }">

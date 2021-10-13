@@ -1,12 +1,12 @@
 <template>
-    <div>
-        <div class="flex items-center justify-between">
+    <div class="mx-3 mb-5 md:mx-0">
+        <div class="flex flex-col justify-between md:items-center md:flex-row">
             <div>What do you want todo today?</div>
-            <div>
+            <div class="flex mt-5 space-x-2 md:mt-0">
                 <input
                     v-model="todoNew"
                     type="text"
-                    class="mr-1 input input-bordered"
+                    class="flex-1 mr-1 input input-bordered"
                 />
                 <button class="btn btn-primary" @click="handleAdd">Add</button>
             </div>
@@ -17,15 +17,50 @@
                 <ul>
                     <li v-for="todo in todosData" :key="todo.id">
                         <div
-                            class="px-5 py-2 mb-3 duration-200 border rounded-lg shadow hover:shadow-lg"
+                            class="flex items-center justify-between px-5 py-2 mb-3 duration-200 border rounded-lg shadow hover:shadow-lg"
                         >
-                            <button
-                                @click="handleDelete(todo.id)"
-                                class="btn btn-ghost"
-                            >
-                                ✖
-                            </button>
-                            {{ todo.name }}
+                            <div>
+                                {{ todo.name }}
+                            </div>
+                            <div class="self-start">
+                                <button
+                                    @click="handleDelete(todo.id)"
+                                    class="mr-2 btn btn-ghost"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="w-6 h-6"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    </svg>
+                                </button>
+                                <button
+                                    class="mr-2 btn btn-ghost hover:bg-primary hover:text-white"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="w-6 h-6"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -54,7 +89,7 @@ import {
     where,
     orderBy,
     deleteDoc,
-    onSnapshot
+    onSnapshot,
 } from 'firebase/firestore'
 
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
@@ -85,17 +120,6 @@ const getData = async () => {
     // console.log(todosData.value)
 }
 
-// auth.onAuthStateChanged(() => {
-//     unsubcribe = onSnapshot(
-//         collection(db, 'todos'),
-//         where('uid', '==', props.userData.uid),
-//         orderBy('createdAt', 'asc'),
-//         (doc) => {
-//             console.log('Current data: ', doc.data())
-//         }
-//     )
-// })
-
 getData()
 
 const handleAdd = async () => {
@@ -105,7 +129,7 @@ const handleAdd = async () => {
             name: todoNew.value,
             createdAt: serverTimestamp(),
         })
-        // console.log('Document written with ID: ', docRef.id)
+        todoNew.value = ''
         getData()
     } catch (e) {
         console.error('Error adding document: ', e)
@@ -121,4 +145,15 @@ const handleDelete = async (docId) => {
         console.error('Error deleting document: ', error)
     }
 }
+
+// auth.onAuthStateChanged(() => {
+//     unsubcribe = onSnapshot(
+//         collection(db, 'todos'),
+//         where('uid', '==', props.userData.uid),
+//         orderBy('createdAt', 'asc'),
+//         (doc) => {
+//             console.log('Current data: ', doc.data())
+//         }
+//     )
+// })
 </script>

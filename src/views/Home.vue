@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="mb-5">
+        <div class="mx-3 mb-5 md:mx-0">
             <br />
             <div v-if="isLoggedIn">
                 <div class="shadow-xl card image-full">
@@ -12,7 +12,7 @@
                     </figure>
                     <div class="justify-end card-body">
                         <h2 class="card-title">
-                            Hello : {{ userLocal.displayName }}
+                            Hello, {{ userLocal.displayName }}!
                         </h2>
                         <p>
                             {{ userLocal.email }}
