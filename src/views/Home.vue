@@ -2,7 +2,7 @@
     <div>
         <div class="mx-3 mb-5 md:mx-0">
             <br />
-            <div v-if="isLoggedIn">
+            <div v-if="isUserLoggedIn">
                 <div class="shadow-xl card image-full">
                     <figure>
                         <img
@@ -10,12 +10,12 @@
                             src="https://picsum.photos/800"
                         />
                     </figure>
-                    <div class="justify-end card-body">
+                    <div v-if="userData" class="justify-end card-body">
                         <h2 class="card-title">
-                            Hello, {{ userLocal.displayName }}!
+                            Hello, {{ userData.displayName }}!
                         </h2>
                         <p>
-                            {{ userLocal.email }}
+                            {{ userData.email }}
                         </p>
                         <div class="card-actions">
                             <button
@@ -29,12 +29,15 @@
                 </div>
 
                 <div class="my-10">
-                    <Todos v-if="userLocal" :userData="userLocal" />
+                    <Todos v-if="userData" :userData="userData" />
                 </div>
             </div>
 
-            <div v-else-if="!isLoggedIn">
-                <button class="btn btn-primary" @click="handleSignIn">
+            <div v-else-if="!isUserLoggedIn">
+                <button
+                    class="btn btn-primary"
+                    @click="store.dispatch('signInAction')"
+                >
                     Login
                 </button>
             </div>
@@ -44,77 +47,25 @@
 
 <script setup>
 import Todos from '../components/Todos.vue'
-import { ref } from '@vue/reactivity'
+import { computed, ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
-import {
-    getAuth,
-    signInWithPopup,
-    GoogleAuthProvider,
-    signOut,
-    onAuthStateChanged,
-} from 'firebase/auth'
-import {
-    getUserLogin,
-    setUserLogin,
-    removeUserLogin,
-} from '../composables/localStorage.js'
 
-const provider = new GoogleAuthProvider()
-const auth = getAuth()
-const isLoggedIn = ref(false)
-const userLocal = ref([])
+import { useStore } from 'vuex'
 
-const { data: userDataFromStorage, statusLogin } = getUserLogin()
+const store = useStore()
+const isUserLoggedIn = computed(() => store.getters.getIsUserLoggedIn)
+const userData = computed(() => store.getters.getUser)
 
 onMounted(() => {
-    if (statusLogin == true) {
-        isLoggedIn.value = true
-        userLocal.value = userDataFromStorage
-    }
-
     // auth state listener, anything happens with sign in or sign out will trigger these function
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            console.log('user login')
-            // console.log(JSON.stringify(user))
-            userLocal.value = user
-            setUserLogin(user)
-            isLoggedIn.value = true
-        } else {
-            console.log('user logout / belum login')
-            removeUserLogin()
-            isLoggedIn.value = false
-        }
-    })
+    store.dispatch('authListenerAction')
 })
 
 const handleSignIn = () => {
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            const credential = GoogleAuthProvider.credentialFromResult(result)
-            const token = credential.accessToken
-        })
-        .catch((error) => {
-            // Handle Errors here.
-            const errorCode = error.code
-            const errorMessage = error.message
-
-            alert(errorMessage)
-            // The email of the user's account used.
-            const email = error.email
-            // The AuthCredential type that was used.
-            const credential = GoogleAuthProvider.credentialFromError(error)
-            // ...
-        })
+    store.dispatch('signInAction')
 }
 
 const handleSignOut = () => {
-    signOut(auth)
-        .then(() => {
-            alert('see ya!!')
-        })
-        .catch((error) => {
-            alert(error.message)
-        })
+    store.dispatch('signOutAction')
 }
 </script>

@@ -1,22 +1,22 @@
 import { createApp } from 'vue'
 import router from './router/'
+import { store } from './store'
 import App from './App.vue'
 import './main.css'
 
 import { initializeApp } from 'firebase/app';
 
-
 const firebaseConfig = {
-    apiKey: '***REMOVED***',
-    authDomain: '***REMOVED***',
-    projectId: '***REMOVED***',
-    storageBucket: '***REMOVED***.appspot.com',
-    messagingSenderId: '***REMOVED***',
-    appId: '1:***REMOVED***:web:5022d7ed747216846fdc9e',
-    measurementId: '***REMOVED***',
+    apiKey: import.meta.env.VITE_API_KEY,
+    authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_APP_ID,
+    measurementId: import.meta.env.VITE_MEASUREMENT_ID,
 }
 
 const firebaseApp = initializeApp(firebaseConfig);
 
 
-createApp(App).use(router).mount('#app')
+createApp(App).use(router).use(store).mount('#app')

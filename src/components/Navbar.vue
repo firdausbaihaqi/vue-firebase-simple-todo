@@ -11,6 +11,8 @@
                 <button class="btn btn-ghost btn-sm rounded-btn">About</button>
             </router-link>
 
+            <!-- TODO : get signout from vuex store so you can signout from this component -->
+
             <!-- <div v-if="userLocal" class="p-0 dropdown dropdown-hover dropdown-end">
                 <div tabindex="0" class="btn">
                     <img :src="userLocal.photoURL" class="h-8 rounded-lg" />
@@ -31,6 +33,8 @@
 <script setup>
 import { onMounted, ref } from '@vue/runtime-core'
 import { getUserLogin } from '../composables/localStorage.js'
+
+//   TODO : use vuex store
 const { data: userDataFromStorage, statusLogin } = getUserLogin()
 
 const userLocal = ref(null)
@@ -38,7 +42,6 @@ const userLocal = ref(null)
 onMounted(() => {
     userLocal.value = userDataFromStorage
     if (userLocal.value != null) {
-        
     }
 })
 </script>

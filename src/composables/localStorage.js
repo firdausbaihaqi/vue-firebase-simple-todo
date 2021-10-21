@@ -29,7 +29,8 @@ const setUserLogin = (newData) => {
 
 const removeUserLogin = () => {
     localStorage.removeItem(localStorageKey);
-    localStorage.clear();
+
+    // localStorage.clear(); // don't clear all the data you dumbass!!
 }
 
 export { getUserLogin, setUserLogin, removeUserLogin }
